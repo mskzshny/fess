@@ -299,7 +299,7 @@ public class IndexUpdater extends Thread {
                 int sumAccessCount = 0;
                 int sumMaxAccessCount = 0;
                 int notYetCrawl = 0;
-            	//‚Ü‚¾ƒNƒ[ƒ‹‚·‚éƒf[ƒ^‚ª‚ ‚ê‚ÎI—¹‚³‚¹‚È‚¢‚æ‚¤‚É‚·‚éB
+            	//ã¾ã ã‚¯ãƒ­ãƒ¼ãƒ«ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Œã°çµ‚äº†ã•ã›ãªã„ã‚ˆã†ã«ã™ã‚‹ã€‚
             	Iterator<S2Robot> i = s2RobotList.iterator();
             	while(i.hasNext()){
             		S2Robot r = i.next();
@@ -319,18 +319,18 @@ public class IndexUpdater extends Thread {
                     logger.info("INFO: S2Robot sumAccessCount / prevSumAccessCount / maxAccessCount    ... -> " + sumAccessCount + "/" + prevSumAccessCount + "/" + sumMaxAccessCount );
                 }
                 
-            	//‘O‰ñ‚æ‚è‚àƒAƒNƒZƒX”‚ª‘‚¦‚Ä‚¢‚È‚¢ê‡
+            	//å‰å›ã‚ˆã‚Šã‚‚ã‚¢ã‚¯ã‚»ã‚¹æ•°ãŒå¢—ãˆã¦ã„ãªã„å ´åˆ
             	if( sumAccessCount <= this.prevSumAccessCount  ){
-            		//‚©‚ÂA‚©‚ç‚Ìó‘Ô‚ª‘±‚¢‚Ä‚¢‚éê‡B
-            		//’â~”»’è
+            		//ã‹ã¤ã€ã‹ã‚‰ã®çŠ¶æ…‹ãŒç¶šã„ã¦ã„ã‚‹å ´åˆã€‚
+            		//åœæ­¢åˆ¤å®š
             		boolean doFinish = false;
-            		// ‹K’è‚ÌƒAƒNƒZƒX”‚ğ’´‚¦‚Ä‚¢‚éB
+            		// è¦å®šã®ã‚¢ã‚¯ã‚»ã‚¹æ•°ã‚’è¶…ãˆã¦ã„ã‚‹ã€‚
             		if( sumAccessCount >= sumMaxAccessCount ){
             			doFinish = true;
             		}
-            		// ‹ó‚Ìó‘Ô(emptyList‚ªƒJƒEƒ“ƒg‚³‚ê‚Ä‚¢‚éó‘Ô)‚ª‚¸‚Á‚Æ‘±‚¢‚Ä‚¢‚éB(“KØ‚Å‚Í‚È‚¢B)
+            		// ç©ºã®çŠ¶æ…‹(emptyListãŒã‚«ã‚¦ãƒ³ãƒˆã•ã‚Œã¦ã„ã‚‹çŠ¶æ…‹)ãŒãšã£ã¨ç¶šã„ã¦ã„ã‚‹ã€‚(é©åˆ‡ã§ã¯ãªã„ã€‚)
             		if( emptyListCount >= maxEmptyListCount ){
-            			//@‚·‚­‚È‚­‚Æ‚à‘S•”‚ÌƒtƒHƒ‹ƒ_[‚P‚Â‚ÍƒNƒ[ƒ‹‚µ‚Ä‚¢‚éB
+            			//ã€€ã™ããªãã¨ã‚‚å…¨éƒ¨ã®ãƒ•ã‚©ãƒ«ãƒ€ãƒ¼ï¼‘ã¤ã¯ã‚¯ãƒ­ãƒ¼ãƒ«ã—ã¦ã„ã‚‹ã€‚
             			doFinish = true;
             			if( notYetCrawl >= 0){
             				doFinish = false;
@@ -338,7 +338,7 @@ public class IndexUpdater extends Thread {
             		}
             		
             		if( doFinish ){
-	            		//‚»‚Ì‚ÉI—¹
+	            		//ãã®æ™‚ã«çµ‚äº†
 	                    if (logger.isInfoEnabled()) {
 	                        logger.info("Terminating indexUpdater. "
 	                                + "emptyListCount is over " + maxEmptyListCount

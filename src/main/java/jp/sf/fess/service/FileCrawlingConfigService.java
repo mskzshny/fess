@@ -63,7 +63,7 @@ public class FileCrawlingConfigService extends BsFileCrawlingConfigService
     }
 
     /**
-     * ‹¤—LƒtƒHƒ‹ƒ_[‚ÌƒNƒ[ƒŠƒ“ƒO‚ðÝ’èŽæ“¾B
+     * å…±æœ‰ãƒ•ã‚©ãƒ«ãƒ€ãƒ¼ã®ã‚¯ãƒ­ãƒ¼ãƒªãƒ³ã‚°ã‚’è¨­å®šå–å¾—ã€‚
      * @param withLabelType
      * @param withRoleType
      * @param available
@@ -110,7 +110,7 @@ public class FileCrawlingConfigService extends BsFileCrawlingConfigService
                     setupper3);
         }
         
-        //ƒRƒ“ƒtƒBƒO‚Ì‡”Ô‚ðƒVƒƒƒbƒtƒ‹‚µ‚Ü‚·B
+        //ã‚³ãƒ³ãƒ•ã‚£ã‚°ã®é †ç•ªã‚’ã‚·ãƒ£ãƒƒãƒ•ãƒ«ã—ã¾ã™ã€‚
         Collections.shuffle(list);
         return list;
     }
