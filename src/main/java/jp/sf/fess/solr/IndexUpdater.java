@@ -18,6 +18,7 @@ package jp.sf.fess.solr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +57,7 @@ import org.seasar.robot.service.UrlQueueService;
 import org.seasar.robot.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class IndexUpdater extends Thread {
     private static final Logger logger = LoggerFactory
@@ -124,6 +126,8 @@ public class IndexUpdater extends Thread {
     private final Map<String, Object> docValueMap = new HashMap<String, Object>();
 
     private List<S2Robot> s2RobotList;
+    
+    private int prevSumAccessCount = 0;
 
     public IndexUpdater() {
         // nothing
@@ -189,6 +193,12 @@ public class IndexUpdater extends Thread {
             int errorCount = 0;
             int emptyListCount = 0;
             while (!finishCrawling || !accessResultList.isEmpty()) {
+
+                if (logger.isInfoEnabled()) {
+                    logger.info("Access Result List : " + accessResultList.isEmpty());
+                    logger.info("Access Result List : " + accessResultList.size());
+                    logger.info("S2Robot size       : " + s2RobotList.size());
+                }
                 try {
                     final int sessionIdListSize = finishedSessionIdList.size();
                     intervalControlHelper.setCrawlerRunning(true);
@@ -223,6 +233,12 @@ public class IndexUpdater extends Thread {
                     } else {
                         emptyListCount = 0; // reset
                     }
+                    //TODO: DELETE
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Access Result List : " + arList.isEmpty());
+                        logger.info("Access Result List : " + arList.size());
+                    }
+
                     while (!arList.isEmpty()) {
                         processAccessResults(docList, accessResultList,
                                 accessResultDataList, arList);
@@ -280,20 +296,65 @@ public class IndexUpdater extends Thread {
                     }
                 }
 
-                if (emptyListCount >= maxEmptyListCount) {
+                int sumAccessCount = 0;
+                int sumMaxAccessCount = 0;
+                int notYetCrawl = 0;
+            	//まだクロールするデータがあれば終了させないようにする。
+            	Iterator<S2Robot> i = s2RobotList.iterator();
+            	while(i.hasNext()){
+            		S2Robot r = i.next();
+            		sumAccessCount += r.getRobotContext().getAccessCount();
+            		sumMaxAccessCount += r.getRobotContext().getMaxAccessCount();
                     if (logger.isInfoEnabled()) {
-                        logger.info("Terminating indexUpdater. "
-                                + "emptyListCount is over " + maxEmptyListCount
-                                + ".");
+                        logger.info("INFO: S2Robot is Runninng?        ... -> " + r.getRobotContext().isRunning() );
+                        logger.info("INFO: S2Robot Access Count        ... -> " + r.getRobotContext().getAccessCount() + "/" + r.getRobotContext().getMaxAccessCount() );
                     }
-                    // terminate crawling
-                    finishCrawling = true;
-                    forceStop();
-                    if (threadDump) {
-                        printThreadDump();
+                    if( r.getRobotContext().getAccessCount() <= 0 ){
+                    	notYetCrawl++;
                     }
-
+            	}
+            	
+                if (logger.isInfoEnabled()) {
+                    logger.info("INFO: emptyListCount              ... -> " + emptyListCount );
+                    logger.info("INFO: S2Robot sumAccessCount / prevSumAccessCount / maxAccessCount    ... -> " + sumAccessCount + "/" + prevSumAccessCount + "/" + sumMaxAccessCount );
                 }
+                
+            	//前回よりもアクセス数が増えていない場合
+            	if( sumAccessCount <= this.prevSumAccessCount  ){
+            		//かつ、からの状態が続いている場合。
+            		//停止判定
+            		boolean doFinish = false;
+            		// 規定のアクセス数を超えている。
+            		if( sumAccessCount >= sumMaxAccessCount ){
+            			doFinish = true;
+            		}
+            		// 空の状態(emptyListがカウントされている状態)がずっと続いている。(適切ではない。)
+            		if( emptyListCount >= maxEmptyListCount ){
+            			//　すくなくとも全部のフォルダー１つはクロールしている。
+            			doFinish = true;
+            			if( notYetCrawl >= 0){
+            				doFinish = false;
+            			}
+            		}
+            		
+            		if( doFinish ){
+	            		//その時に終了
+	                    if (logger.isInfoEnabled()) {
+	                        logger.info("Terminating indexUpdater. "
+	                                + "emptyListCount is over " + maxEmptyListCount
+	                                + ".");
+	                    }
+	                    // terminate crawling
+	                    finishCrawling = true;
+	                    forceStop();
+	                    if (threadDump) {
+	                        printThreadDump();
+	                    }
+            		}
+            	}
+            	else{
+            		this.prevSumAccessCount = sumAccessCount;
+            	}
             }
 
             if (logger.isDebugEnabled()) {
@@ -546,8 +607,7 @@ public class IndexUpdater extends Thread {
     private PagingResultBean<AccessResult> getAccessResultList(
             final AccessResultCB cb) {
         final long execTime = System.currentTimeMillis();
-        final PagingResultBean<AccessResult> arList = accessResultBhv
-                .selectPage(cb);
+        final PagingResultBean<AccessResult> arList = accessResultBhv.selectPage(cb);
         if (!arList.isEmpty()) {
             for (final AccessResult ar : arList.toArray(new AccessResult[arList
                     .size()])) {

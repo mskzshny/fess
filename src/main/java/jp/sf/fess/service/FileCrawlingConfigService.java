@@ -18,6 +18,7 @@ package jp.sf.fess.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,14 @@ public class FileCrawlingConfigService extends BsFileCrawlingConfigService
         }
     }
 
+    /**
+     * 共有フォルダーのクローリングを設定取得。
+     * @param withLabelType
+     * @param withRoleType
+     * @param available
+     * @param idList
+     * @return
+     */
     public List<FileCrawlingConfig> getAllFileCrawlingConfigList(
             final boolean withLabelType, final boolean withRoleType,
             final boolean available, final List<Long> idList) {
@@ -100,6 +109,9 @@ public class FileCrawlingConfigService extends BsFileCrawlingConfigService
             fileCrawlingConfigBhv.loadFileConfigToLabelTypeMappingList(list,
                     setupper3);
         }
+        
+        //コンフィグの順番をシャッフルします。
+        Collections.shuffle(list);
         return list;
     }
 
